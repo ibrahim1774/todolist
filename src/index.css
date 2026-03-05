@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0F0F13;
+  --color-card: #1A1A24;
+  --color-card-hover: #22222E;
+  --color-accent: #7C6FF7;
+  --color-accent-hover: #9B8FFF;
+  --color-mint: #4FFFB0;
+  --color-border: rgba(255, 255, 255, 0.07);
+  --color-text: #E8E8ED;
+  --color-text-muted: #6B6B80;
+  --color-text-dim: #44445A;
+  --color-danger: #FF4D6A;
+  --color-warning: #FFD93D;
+  --font-heading: 'Syne', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  min-height: 100vh;
+}
+
+/* Custom checkbox */
+.checkbox-custom {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 2px solid var(--color-text-dim);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.checkbox-custom:hover {
+  border-color: var(--color-accent);
+}
+
+.checkbox-custom.checked {
+  background: var(--color-mint);
+  border-color: var(--color-mint);
+}
+
+.checkbox-custom .checkmark {
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.checkbox-custom.checked .checkmark {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Task animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.task-enter {
+  animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.task-shake {
+  animation: shake 0.3s ease-in-out;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-text-dim);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
