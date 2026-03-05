@@ -206,12 +206,7 @@ function App() {
               className="w-full bg-transparent text-text text-sm placeholder:text-text-dim outline-none mb-3 font-medium"
             />
             <div className="flex items-center gap-3 flex-wrap">
-              <input
-                type="date"
-                value={dueDate}
-                onChange={e => setDueDate(e.target.value)}
-                className="bg-card-hover border border-border text-text-muted text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-accent transition-colors"
-              />
+              <DatePicker value={dueDate} onChange={setDueDate} />
               <select
                 value={category}
                 onChange={e => setCategory(e.target.value)}
@@ -309,6 +304,127 @@ function App() {
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
         </button>
+      )}
+    </div>
+  )
+}
+
+function DatePicker({ value, onChange }) {
+  const [open, setOpen] = useState(false)
+  const [viewDate, setViewDate] = useState(() => {
+    if (value) return new Date(value + 'T00:00:00')
+    return new Date()
+  })
+  const ref = useRef(null)
+
+  useEffect(() => {
+    if (!open) return
+    function handleClick(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [open])
+
+  const year = viewDate.getFullYear()
+  const month = viewDate.getMonth()
+  const firstDay = new Date(year, month, 1).getDay()
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const days = []
+  for (let i = 0; i < firstDay; i++) days.push(null)
+  for (let d = 1; d <= daysInMonth; d++) days.push(d)
+
+  function selectDay(d) {
+    const m = String(month + 1).padStart(2, '0')
+    const dd = String(d).padStart(2, '0')
+    onChange(`${year}-${m}-${dd}`)
+    setOpen(false)
+  }
+
+  function prevMonth() {
+    setViewDate(new Date(year, month - 1, 1))
+  }
+  function nextMonth() {
+    setViewDate(new Date(year, month + 1, 1))
+  }
+
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December']
+
+  const selectedDay = value ? new Date(value + 'T00:00:00') : null
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-2 bg-card-hover border border-border text-text-muted text-xs rounded-lg px-3 py-1.5 hover:border-accent transition-colors cursor-pointer"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="8" y1="2" x2="8" y2="6" />
+          <line x1="3" y1="10" x2="21" y2="10" />
+        </svg>
+        {value ? formatDate(value) : 'Due date'}
+        {value && (
+          <span
+            onClick={(e) => { e.stopPropagation(); onChange(''); setOpen(false) }}
+            className="ml-1 hover:text-danger transition-colors"
+          >
+            &times;
+          </span>
+        )}
+      </button>
+
+      {open && (
+        <div className="absolute top-full left-0 mt-2 z-50 bg-card border border-border rounded-xl shadow-xl p-3 w-[264px] task-enter">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-2">
+            <button type="button" onClick={prevMonth} className="text-text-muted hover:text-text p-1 transition-colors cursor-pointer">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
+            </button>
+            <span className="text-sm font-medium text-text">{monthNames[month]} {year}</span>
+            <button type="button" onClick={nextMonth} className="text-text-muted hover:text-text p-1 transition-colors cursor-pointer">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6" /></svg>
+            </button>
+          </div>
+
+          {/* Day headers */}
+          <div className="grid grid-cols-7 gap-0.5 mb-1">
+            {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
+              <div key={d} className="text-[10px] text-text-dim uppercase text-center py-1 font-medium">{d}</div>
+            ))}
+          </div>
+
+          {/* Days grid */}
+          <div className="grid grid-cols-7 gap-0.5">
+            {days.map((d, i) => {
+              if (d === null) return <div key={`empty-${i}`} />
+              const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear()
+              const isSelected = selectedDay && d === selectedDay.getDate() && month === selectedDay.getMonth() && year === selectedDay.getFullYear()
+              return (
+                <button
+                  key={d}
+                  type="button"
+                  onClick={() => selectDay(d)}
+                  className={`w-8 h-8 rounded-lg text-xs font-medium flex items-center justify-center transition-all duration-150 cursor-pointer ${
+                    isSelected
+                      ? 'bg-accent text-white'
+                      : isToday
+                        ? 'text-accent bg-accent/10 hover:bg-accent/20'
+                        : 'text-text-muted hover:bg-card-hover hover:text-text'
+                  }`}
+                >
+                  {d}
+                </button>
+              )
+            })}
+          </div>
+        </div>
       )}
     </div>
   )
